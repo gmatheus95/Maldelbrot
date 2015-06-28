@@ -1,0 +1,22 @@
+﻿Build started 26/06/2015 08:53:39.
+     1>Project "C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\HelloWorldVS10.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Touching "temp\x86\Debug\MandelbrotGPU.unsuccessfulbuild".
+       ClCompile:
+         All outputs are up-to-date.
+       Link:
+         All outputs are up-to-date.
+         HelloWorldVS10.vcxproj -> C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.exe
+       PostBuildEvent:
+         copy MandelbrotGPU_kernel.cl "C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU_kernel.cl" /Y
+         	  
+         :VCEnd
+                 1 arquivo(s) copiado(s).
+       FinalizeBuildStatus:
+         Deleting file "temp\x86\Debug\MandelbrotGPU.unsuccessfulbuild".
+         Touching "temp\x86\Debug\MandelbrotGPU.lastbuildstate".
+     1>Done Building Project "C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\HelloWorldVS10.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.15
