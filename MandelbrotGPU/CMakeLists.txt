@@ -15,9 +15,9 @@
 #################################################################################
 
 
-set( SAMPLE_NAME HelloWorld )
-set( SOURCE_FILES HelloWorld.cpp )
-set( EXTRA_FILES HelloWorld_Kernel.cl )
+set( SAMPLE_NAME MandelbrotGPU )
+set( SOURCE_FILES MandelbrotGPU.cpp )
+set( EXTRA_FILES MandelbrotGPU_Kernel.cl )
 
 ############################################################################
 

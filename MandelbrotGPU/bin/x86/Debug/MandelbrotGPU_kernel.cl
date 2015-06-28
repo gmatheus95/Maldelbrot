@@ -19,10 +19,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	out[num] = in[num] + 1;
 }*/
 
-__kernel void MandelbrotGPU(__global float* cymin,__global float* cxmin,__global float* pixelwidth,__global float* pixelheigth,__global int* ixmax, __global int* iterationmax, __global float* er2, __global char* saida)
+
+
+__kernel void MandelbrotGPU(__global float* cymin,__global float* cxmin,__global float* pixelwidth,__global float* pixelheigth,__global int* ixmax, __global int* iterationmax, __global float* er2,__global uchar4* saida, __global uchar4* saida2)
 {
+	bool flag = false;
 	int iY = get_global_id(0);
-	int colorCounter = iY*(*ixmax)*3; //em qual parte do output vai ser salvo efetivamente as informações de um dos processamentos em paralelo
+	int colorCounter = 0;
+	 //em qual parte do output vai ser salvo efetivamente as informações de um dos processamentos em paralelo
+	if (iY >= ((*ixmax)/2))
+	{
+		flag = true;
+		colorCounter = (iY-((*ixmax)/2))*(*ixmax)*3;
+	}
+	else
+	{
+		colorCounter = iY*(*ixmax)*3;
+	}
 	float Cy = (*cymin) + iY*(*pixelheigth);
 	float Cx;
 	float Zx;
@@ -51,25 +64,36 @@ __kernel void MandelbrotGPU(__global float* cymin,__global float* cxmin,__global
         /* compute  pixel color (24 bit = 3 bytes) */
         if (Iteration==(*iterationmax))
         { /*  interior of Mandelbrot set = black */
-            saida[colorCounter]=0;
-            saida[colorCounter+1]=0;
-            saida[colorCounter+2]=0;                           
+			if (!flag)
+			{
+				saida[colorCounter]=0;
+				saida[colorCounter+1]=0;
+				saida[colorCounter+2]=0;                           
+			}
+			else
+			{
+				saida2[colorCounter]=0;
+				saida2[colorCounter+1]=0;
+				saida2[colorCounter+2]=0;                           
+			}
         }
         else 
         { /* exterior of Mandelbrot set = white */
+			if (!flag)
+			{
                 saida[colorCounter]=(((*iterationmax)-Iteration) % 8) *  63;  /* Red */
                 saida[colorCounter+1]=(((*iterationmax)-Iteration) % 4) * 127;  /* Green */ 
                 saida[colorCounter+2]=(((*iterationmax)-Iteration) % 2) * 255;  /* Blue */
+			}
+			else
+			{
+				saida2[colorCounter]=(((*iterationmax)-Iteration) % 8) *  63;  /* Red */
+                saida2[colorCounter+1]=(((*iterationmax)-Iteration) % 4) * 127;  /* Green */ 
+                saida2[colorCounter+2]=(((*iterationmax)-Iteration) % 2) * 255;  /* Blue */
+			}
         };
-        /*write color to the file*/
-		        saida[colorCounter]=15;  /* Red */
-                saida[colorCounter+1]=15;  /* Green */ 
-                saida[colorCounter+2]=15;  /* Blue */
-
 		colorCounter+= 3;
 	}
-
-
 }
 
 

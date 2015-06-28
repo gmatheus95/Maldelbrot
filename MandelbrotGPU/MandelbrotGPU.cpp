@@ -23,11 +23,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <GL/glut.h>
+#include <cmath>
+#include <malloc.h>
 
 #define SUCCESS 0
 #define FAILURE 1
-#define IHEIGHT 8192
-#define IWIDTH 8192
+#define IHEIGHT 4096
+#define IWIDTH 4096
 
 using namespace std;
 
@@ -140,7 +143,6 @@ int main(int argc, char* argv[])
 
 	//inicializa variaveis para o calculo do Mandelbrot, cria arquivo, etc
 	/* screen ( integer) coordinate */
-    int iX,iY;
     int iXmax = IHEIGHT; 
     int iYmax = IWIDTH;
     /* world ( float) coordinate = parameter plane*/
@@ -170,8 +172,8 @@ int main(int argc, char* argv[])
 	//DEFINIR DADOS DE ENTRADA E SAIDA DA ITERACAO A SER PARARELIZADA!
 	/*Step 7: Initial input,output for the host and create memory objects for the kernel*/
 	size_t arraysize = 3*iXmax*iYmax; //tamanho do array gerado pós contas
-	char *output = (char*) malloc(arraysize*sizeof(char));
-
+	cl_uchar4 *outputA = (cl_uchar4*) malloc((1+arraysize/2)*sizeof(cl_uchar4));
+	cl_uchar4 *outputB = (cl_uchar4*) malloc((1+arraysize/2)*sizeof(cl_uchar4));
 	void *er2 = &ER2; //tem que ter um ponteiro de void apontando pro valor a ser passado para o inputBuffer
 	void *cymin = &CyMin;
 	void *ixmax = &iXmax;
@@ -188,8 +190,10 @@ int main(int argc, char* argv[])
 	cl_mem input_ITERATIONMAX_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int),(void *) iterationmax, NULL);
 	cl_mem input_ER2_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(float),er2, NULL);
 		
+	int errcod = 0;
 	//buffer de output ESTOU COM PROBLEMA NESSE BUFFER
-	cl_mem outputBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY , (arraysize + 1) * sizeof(char), NULL, NULL);
+	cl_mem outputABuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2 + 1) * sizeof(cl_uchar4), NULL, &errcod);
+	cl_mem outputBBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2 + 1) * sizeof(cl_uchar4), NULL, &errcod);
 
 	/*Step 8: Create kernel object */
 	cl_kernel kernel = clCreateKernel(program,"MandelbrotGPU", NULL);
@@ -203,20 +207,21 @@ int main(int argc, char* argv[])
 	status = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&input_ITERATIONMAX_Buffer);
 	status = clSetKernelArg(kernel,6,sizeof(cl_mem), (void*)&input_ER2_Buffer);
 	//ESTOU COM PROBLEMA NESSE BUFFER \/
-	status = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&outputBuffer);
+	status = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&outputABuffer);
+	status = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&outputBBuffer);
 	
 	/*Step 10: Running the kernel.*/
-	size_t global_work_size[1] = {arraysize};
+	size_t global_work_size[1] = {iYmax};
 	status = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL);
 
 	//ESTOU COM PROBLEMA NESSE BUFFER \/
 	/*Step 11: Read the cout put back to host memory.*/
-	status = clEnqueueReadBuffer(commandQueue, outputBuffer, CL_TRUE, 0, arraysize * sizeof(char), output, 0, NULL, NULL);
+	status = clEnqueueReadBuffer(commandQueue, outputABuffer, CL_TRUE, 0, (arraysize/2)*sizeof(cl_uchar4), outputA, 0, NULL, NULL);
+	status = clEnqueueReadBuffer(commandQueue, outputBBuffer, CL_TRUE, 0, (arraysize/2)*sizeof(cl_uchar4), outputB, 0, NULL, NULL);
 	
-	output[arraysize] = '\0';	//Add the terminal character to the end of output. NAO SEI SE PRECISA!
-	
-	fwrite(output,1,arraysize,fp);
-
+	//output[arraysize] = cl_convert_uchar4('\0');	//Add the terminal character to the end of output. NAO SEI SE PRECISA!
+		fwrite(outputA,sizeof(cl_uchar4),arraysize/2,fp);
+		fwrite(outputB,sizeof(cl_uchar4),arraysize/2,fp);
 
 	/*Step 12: Clean the resources.*/
 	status = clReleaseKernel(kernel);				//Release kernel.
@@ -228,15 +233,16 @@ int main(int argc, char* argv[])
 	status = clReleaseMemObject(input_IXMAX_Buffer);
 	status = clReleaseMemObject(input_ITERATIONMAX_Buffer);
 	status = clReleaseMemObject(input_ER2_Buffer);
-	status = clReleaseMemObject(outputBuffer);
+	status = clReleaseMemObject(outputABuffer);
+	status = clReleaseMemObject(outputBBuffer);
 	status = clReleaseCommandQueue(commandQueue);	//Release  Command queue.
 	status = clReleaseContext(context);				//Release context.
 
-	if (output != NULL)
-	{
+	//if (output != NULL)
+	//{
 		//free(output);
-		output = NULL;
-	}
+		//output = NULL;
+	//}
 
 	if (devices != NULL)
 	{
