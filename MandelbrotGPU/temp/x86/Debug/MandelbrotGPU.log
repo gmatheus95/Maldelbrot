@@ -1,12 +1,16 @@
-﻿Build started 28/06/2015 20:43:24.
+﻿Build started 28/06/2015 23:46:17.
      1>Project "C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\MandelbrotGPU.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "temp\x86\Debug\MandelbrotGPU.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         All outputs are up-to-date.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../../../include /I../../../../include/SDKUtil /I"C:\Program Files (x86)\AMD APP SDK\2.9-1\/include" /Zi /nologo /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _CRT_SECURE_NO_WARNINGS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"temp\x86\Debug\\" /Fd"C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin/x86/Debug/MandebrotGPU.pdb" /Gd /TP /wd4005 /wd4996 /analyze- /errorReport:prompt MandelbrotGPU.cpp
+         MandelbrotGPU.cpp
        Link:
-         All outputs are up-to-date.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.exe" /NOLOGO /LIBPATH:..\..\..\..\lib\win32\ /LIBPATH:"C:\Program Files (x86)\AMD APP SDK\2.9-1\\lib\x86\\" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib OpenCL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"temp\x86\Debug\MandelbrotGPU.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin/x86/Debug/HelloWorld.lib" /MACHINE:X86 /SAFESEH:NO temp\x86\Debug\MandelbrotGPU.obj  /machine:X86 /debug 
+         LINK : C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.exe not found or not built by the last incremental link; performing full link
          MandelbrotGPU.vcxproj -> C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.exe
+       Manifest:
+         c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU.exe;#1" /manifest temp\x86\Debug\MandelbrotGPU.exe.intermediate.manifest
        PostBuildEvent:
          copy MandelbrotGPU_kernel.cl "C:\Users\Guilherme\Desktop\ProjetoOpenCL\ProjetoOPENCL\MandelbrotGPU\bin\x86\Debug\MandelbrotGPU_kernel.cl" /Y
          	  
@@ -19,4 +23,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.26
+Time Elapsed 00:00:01.11

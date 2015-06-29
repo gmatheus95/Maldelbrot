@@ -18,8 +18,8 @@ int main()
 {
         /* screen ( integer) coordinate */
         int iX,iY;
-        const int iXmax = 16384; 
-        const int iYmax = 16384;
+        const int iXmax = 4096; 
+        const int iYmax = 4096;
         /* world ( double) coordinate = parameter plane*/
         double Cx,Cy;
         const double CxMin=-2.5;
@@ -52,7 +52,8 @@ int main()
         for(iY=0;iY<iYmax;iY++)
         {
              Cy=CyMin + iY*PixelHeight;
-             if (fabs(Cy)< PixelHeight/2) Cy=0.0; /* Main antenna */
+             if (fabs(Cy)< PixelHeight/2) 
+				 Cy=0.0; /* Main antenna */
              for(iX=0;iX<iXmax;iX++)
              {         
                         Cx=CxMin + iX*PixelWidth;

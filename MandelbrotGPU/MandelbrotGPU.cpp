@@ -29,8 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #define SUCCESS 0
 #define FAILURE 1
-#define IHEIGHT 4096
-#define IWIDTH 4096
+#define IHEIGHT 8000 //TAMANHOS X E Y EM PIXELS
+#define IWIDTH 8000
 
 using namespace std;
 
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 	/*Step 6: Build program. */
 	status=clBuildProgram(program, 1,devices,NULL,NULL,NULL);
 
-	//VERIFICA ERROS NO ARQUIVO CL (NECESSARIO!!!)
+	//VERIFICA ERROS NO ARQUIVO kernel.CL (NECESSARIO!!!)
 	if (status == CL_BUILD_PROGRAM_FAILURE) 
 	{
 		// Determine the size of the log
@@ -158,7 +158,6 @@ int main(int argc, char* argv[])
     const int MaxColorComponentValue=255; 
     FILE * fp;
     char *imagename="mandelbrot.ppm";
-    static unsigned char color[3];
     /*  */
     int IterationMax=256;
     /* bail-out value , radius of circle ;  */
@@ -172,8 +171,8 @@ int main(int argc, char* argv[])
 	//DEFINIR DADOS DE ENTRADA E SAIDA DA ITERACAO A SER PARARELIZADA!
 	/*Step 7: Initial input,output for the host and create memory objects for the kernel*/
 	size_t arraysize = 3*iXmax*iYmax; //tamanho do array gerado pós contas
-	cl_uchar4 *outputA = (cl_uchar4*) malloc((1+arraysize/2)*sizeof(cl_uchar4));
-	cl_uchar4 *outputB = (cl_uchar4*) malloc((1+arraysize/2)*sizeof(cl_uchar4));
+	char *outputA = (char*) malloc((arraysize/2)*sizeof(char));
+	char *outputB = (char*) malloc((arraysize/2)*sizeof(char));
 	void *er2 = &ER2; //tem que ter um ponteiro de void apontando pro valor a ser passado para o inputBuffer
 	void *cymin = &CyMin;
 	void *ixmax = &iXmax;
@@ -189,15 +188,14 @@ int main(int argc, char* argv[])
 	cl_mem input_IXMAX_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int),(void *) ixmax, NULL);
 	cl_mem input_ITERATIONMAX_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int),(void *) iterationmax, NULL);
 	cl_mem input_ER2_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(float),er2, NULL);
-		
+	//buffers de saida (estes são os liitadores do tamanho da aplicacao........
 	int errcod = 0;
-	//buffer de output ESTOU COM PROBLEMA NESSE BUFFER
-	cl_mem outputABuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2 + 1) * sizeof(cl_uchar4), NULL, &errcod);
-	cl_mem outputBBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2 + 1) * sizeof(cl_uchar4), NULL, &errcod);
+	cl_mem outputABuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2) * sizeof(char), NULL, &errcod);
+	cl_mem outputBBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2) * sizeof(char), NULL, &errcod);
 
 	/*Step 8: Create kernel object */
 	cl_kernel kernel = clCreateKernel(program,"MandelbrotGPU", NULL);
-
+	//atribuindo os buffers aos argumentos do kernel da GPU
 	/*Step 9: Sets Kernel arguments.*/
 	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&input_CYMIN_Buffer);
 	status = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&input_CXMIN_Buffer);
@@ -206,7 +204,7 @@ int main(int argc, char* argv[])
 	status = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&input_IXMAX_Buffer);
 	status = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&input_ITERATIONMAX_Buffer);
 	status = clSetKernelArg(kernel,6,sizeof(cl_mem), (void*)&input_ER2_Buffer);
-	//ESTOU COM PROBLEMA NESSE BUFFER \/
+	
 	status = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&outputABuffer);
 	status = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&outputBBuffer);
 	
@@ -214,15 +212,14 @@ int main(int argc, char* argv[])
 	size_t global_work_size[1] = {iYmax};
 	status = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL);
 
-	//ESTOU COM PROBLEMA NESSE BUFFER \/
+	//lendo valores gerados nos buffers de saida para as variaveis locais outputA e outputB do tipo char*
 	/*Step 11: Read the cout put back to host memory.*/
-	status = clEnqueueReadBuffer(commandQueue, outputABuffer, CL_TRUE, 0, (arraysize/2)*sizeof(cl_uchar4), outputA, 0, NULL, NULL);
-	status = clEnqueueReadBuffer(commandQueue, outputBBuffer, CL_TRUE, 0, (arraysize/2)*sizeof(cl_uchar4), outputB, 0, NULL, NULL);
-	
-	//output[arraysize] = cl_convert_uchar4('\0');	//Add the terminal character to the end of output. NAO SEI SE PRECISA!
-		fwrite(outputA,sizeof(cl_uchar4),arraysize/2,fp);
-		fwrite(outputB,sizeof(cl_uchar4),arraysize/2,fp);
+	status = clEnqueueReadBuffer(commandQueue, outputABuffer, CL_TRUE, 0, (arraysize/2), outputA, 0, NULL, NULL);
+	status = clEnqueueReadBuffer(commandQueue, outputBBuffer, CL_TRUE, 0, (arraysize/2), outputB, 0, NULL, NULL);
 
+	//Escrevendo no arquivo texto
+		fwrite(outputA,sizeof(char),arraysize/2,fp);
+		fwrite(outputB,sizeof(char),arraysize/2,fp);
 	/*Step 12: Clean the resources.*/
 	status = clReleaseKernel(kernel);				//Release kernel.
 	status = clReleaseProgram(program);				//Release the program object.
@@ -238,18 +235,11 @@ int main(int argc, char* argv[])
 	status = clReleaseCommandQueue(commandQueue);	//Release  Command queue.
 	status = clReleaseContext(context);				//Release context.
 
-	//if (output != NULL)
-	//{
-		//free(output);
-		//output = NULL;
-	//}
-
 	if (devices != NULL)
 	{
 		free(devices);
 		devices = NULL;
 	}
-
 
 	system("PAUSE");
 
