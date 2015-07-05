@@ -22,8 +22,8 @@ int main()
 		clock_t start, end;
         /* screen ( integer) coordinate */
         int iX,iY;
-        const int iXmax = 16384;
-        const int iYmax = 16384;
+        const int iXmax = 8000;
+        const int iYmax = 8000;
         /* world ( double) coordinate = parameter plane*/
         double Cx,Cy;
         const float CxMin=-2.5;
@@ -37,7 +37,7 @@ int main()
         /* it is 24 bit color RGB file */
         const int MaxColorComponentValue=255;
         FILE * fp;
-        char *filename="mandelbrot.ppm";
+        char *filename="mandelbrot_original.ppm";
         static unsigned char color[3];
         /* Z=Zx+Zy*i  ;   Z0 = 0 */
         float Zx, Zy;

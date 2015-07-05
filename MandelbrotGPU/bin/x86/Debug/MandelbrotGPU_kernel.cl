@@ -13,13 +13,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************/
-/*__kernel void MandelbrotGPU(__global float* in, __global float* out)
-{
-	int num = get_global_id(0);
-	out[num] = in[num] + 1;
-}*/
-
-
 
 __kernel void MandelbrotGPU(__global float* cymin,__global float* cxmin,__global float* pixelwidth,__global float* pixelheigth,__global int* ixmax, __global int* iterationmax, __global float* er2,__global char* saida, __global char* saida2)
 {

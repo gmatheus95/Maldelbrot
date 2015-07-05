@@ -9,3 +9,5 @@ original.exe
 echo "Rodando o codigo modificado..."
 main_simd.exe
 
+pause
+

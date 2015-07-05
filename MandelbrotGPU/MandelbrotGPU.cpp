@@ -1,3 +1,18 @@
+
+
+
+/*
+Grande parte deste código (tirando a parte específica do calculo do Mandelbrot e criação de buffers e afins) foi desenvolvida pela AMD. Este 
+código em especial é advindo do programa "Hello World" em OpenCL, disponível gratuitamente e com código aberto no conjunto de "samples" do 
+AMD APP SDK, disponível para download em http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/ 
+Com base no modelo HelloWorld.cpp e no arquivo PDF incorporado no repositório, foi desenvolvida a pararelização do algoritmo de Mandelbrot via 
+OpenCL. O modelo utilizado ja estava preparado para o caso de não haver uma GPU AMD Radeon, então ele executará em CPU caso não encontre tal GPU. 
+Para fins de dar os devidos créditos e legitimar o uso do código disponibilizado pela AMD, abaixo estão os termos de redistribuição com modificação
+de tal código. Além disso, todos os comentários do código original foram mantidos.
+*/ 
+
+
+
 /**********************************************************************
 Copyright ©2014 Advanced Micro Devices, Inc. All rights reserved.
 
@@ -14,8 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************/
 
-// For clarity,error checking has been omitted.
-
+#include <time.h>
 #include <CL/cl.h>
 #include <string.h>
 #include <stdio.h>
@@ -35,7 +49,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using namespace std;
 
 /* convert the kernel file into a string */
-int convertToString(const char *filename, std::string& s)
+int convertToString(const char *filename, std::string& s) 
 {
 	size_t size;
 	char*  str;
@@ -67,7 +81,8 @@ int convertToString(const char *filename, std::string& s)
 
 int main(int argc, char* argv[])
 {
-
+	clock_t start, end;
+	start = clock();
 	/*Step1: Getting platforms and choose an available one.*/
 	cl_uint numPlatforms;	//the NO. of platforms
 	cl_platform_id platform = NULL;	//the chosen platform
@@ -91,6 +106,8 @@ int main(int argc, char* argv[])
 	cl_uint				numDevices = 0;
 	cl_device_id        *devices;
 	status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 0, NULL, &numDevices);	
+	
+	//Se tiver GPU AMD, executa nela, senão, executa no CPU (CPU Branch)
 	if (numDevices == 0)	//no GPU available.
 	{
 		cout << "No GPU device available." << endl;
@@ -157,7 +174,7 @@ int main(int argc, char* argv[])
     /* it is 24 bit color RGB file */
     const int MaxColorComponentValue=255; 
     FILE * fp;
-    char *imagename="mandelbrot.ppm";
+    char *imagename="mandelbrotCPU.ppm";
     /*  */
     int IterationMax=256;
     /* bail-out value , radius of circle ;  */
@@ -188,7 +205,7 @@ int main(int argc, char* argv[])
 	cl_mem input_IXMAX_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int),(void *) ixmax, NULL);
 	cl_mem input_ITERATIONMAX_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int),(void *) iterationmax, NULL);
 	cl_mem input_ER2_Buffer = clCreateBuffer(context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(float),er2, NULL);
-	//buffers de saida (estes são os liitadores do tamanho da aplicacao........
+	//buffers de saida (estes são os limitadores do tamanho da aplicacao........
 	int errcod = 0;
 	cl_mem outputABuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2) * sizeof(char), NULL, &errcod);
 	cl_mem outputBBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, (arraysize/2) * sizeof(char), NULL, &errcod);
@@ -221,6 +238,11 @@ int main(int argc, char* argv[])
 		fwrite(outputA,sizeof(char),arraysize/2,fp);
 		fwrite(outputB,sizeof(char),arraysize/2,fp);
 	/*Step 12: Clean the resources.*/
+
+	end = clock();
+	float elapsed_time = ((double) (end-start))/ CLOCKS_PER_SEC;
+	printf("TEMPO DE EXECUCAO = %f segundos\n", elapsed_time);
+
 	status = clReleaseKernel(kernel);				//Release kernel.
 	status = clReleaseProgram(program);				//Release the program object.
 	status = clReleaseMemObject(input_CYMIN_Buffer);		//Release mem object.
@@ -240,11 +262,6 @@ int main(int argc, char* argv[])
 		free(devices);
 		devices = NULL;
 	}
-
-	system("PAUSE");
-
-	std::cout<<"Passed!\n";
-
 	
 	return SUCCESS;
 }

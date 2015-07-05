@@ -10,8 +10,8 @@ int main()
 	clock_t start, end;
 
 	/* Limites de x e y*/
-	const int iXmax = 16384;
-	const int iYmax = 16384;
+	const int iXmax = 8000;
+	const int iYmax = 8000;
 	
 	/* Definindo vetores Cxf e CyF (float) para usar nos registradores XMMX
 	   o nome das variaveis foi alterado em comparacao a versao original disponibilizada
