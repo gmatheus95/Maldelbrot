@@ -1,4 +1,4 @@
-call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
 cd TESTES
 
 cl main_simd.cpp
@@ -10,11 +10,9 @@ original.exe
 echo "Rodando o codigo modificado..."
 main_simd.exe
 echo "Rodando o codigo em OpenCL em CPU..."
-cd MandelbrotCPU
-MandelbrotCPU.exe
-cd..
+openCL_CPU.exe
 echo "Rodando o codigo em OpenCL em GPU..."
-cd MandelbrotGPU
-MandelbrotGPU.exe
+openCL_GPU.exe
+
 
 pause

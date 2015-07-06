@@ -48,8 +48,8 @@ int main()
 	fp = fopen(filename, "wb");
 	/*Escreve o ASCII header no arquivo */
 	fprintf(fp, "P6\n %d\n %d\n %d\n", iXmax, iYmax, MaxColorComponentValue);
-	/* Vetor em que sera armazenado todos os valores dos pixels da imagem */
-	static unsigned char* color = new unsigned char[iXmax*iYmax*3];
+	/* Vetor em que sera armazenado os valores dos pixels da imagem */
+	static unsigned char color[3];
 
 	/* Definindo vetores que serao usados para operacoes SIMD*/
 	__m128 incrementador = _mm_set1_ps(4.0f);
@@ -60,7 +60,6 @@ int main()
 	__m128 iY = _mm_set_ps(0.0f, 1.0f, 2.0f, 3.0f);
 	__m128 iX = _mm_set_ps(0.0f, 1.0f, 2.0f, 3.0f);
 	/* Indice usado para posicionar os valores no array color*/
-	int indice[3] = { 0, 1, 2 };
 
 	/* Comeca a contar o tempo de execucao */
 	start = clock();
@@ -113,29 +112,22 @@ int main()
 					};
 					if (Iteration == IterationMax)
 					{ /*  interior do Mandelbrot = black */
-						color[indice[0]] = 0;
-						color[indice[1]] = 0;
-						color[indice[2]] = 0;
-						indice[0] += 3;
-						indice[1] += 3;
-						indice[2] += 3;
+						color[0] = 0;
+						color[1] = 0;
+						color[2] = 0;
 					}
 					else
 					{ /* exterior do Mandelbrot = white */
 
-						color[indice[0]] = ((IterationMax - Iteration) % 8) * 63;  /* Red */
-						color[indice[1]] = ((IterationMax - Iteration) % 4) * 127;  /* Green */
-						color[indice[2]] = ((IterationMax - Iteration) % 2) * 255;  /* Blue */
-						indice[0] += 3;
-						indice[1] += 3;
-						indice[2] += 3;
-					};				
+						color[0] = ((IterationMax - Iteration) % 8) * 63;  /* Red */
+						color[1] = ((IterationMax - Iteration) % 4) * 127;  /* Green */
+						color[2] = ((IterationMax - Iteration) % 2) * 255;  /* Blue */
+					};
+					fwrite(color, 1, 3, fp);				
 				}
 			}
 		}
 	}
-	/* Escrevendo resultado no arquivo */
-	fwrite(color, 1, indice[0]-1, fp);
 	/* Fechando arquivo e calculando o tempo de execucao*/
 	end = clock();
 	fclose(fp);
